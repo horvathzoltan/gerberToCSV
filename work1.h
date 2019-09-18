@@ -19,7 +19,10 @@ public:
     static Work1Params params;
 
     static int savemap(const QString& fn, const QList<APoint> &list);
-    static QList<APoint> Work1::grbLoader(const QString& grbFileName);
+    static QList<APoint> grbLoader(const QString& grbFileName);
+    static QMap<int, QList<APoint>> pointListToMap(const QList<APoint> &list);
+    static QMap<int, APoint> pointMapWeight(const QMap<int, QList<APoint>> &map);
+    static QList<APoint> pointMapToList(const QMap<int, APoint> &map);
 };
 
 #endif // WORK1_H

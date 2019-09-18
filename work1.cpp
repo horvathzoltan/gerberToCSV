@@ -2,6 +2,7 @@
 #include "common/logger/log.h"
 #include "apoint.h"
 #include"common/helper/textfilehelper/textfilehelper.h"
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QtMath>
 
@@ -38,17 +39,71 @@ int Work1::doWork()
             return 1;
         }
 
-    //    int e;
-    //    auto outmap = doWork(list, &e);
+      auto pmap = pointListToMap(list);
+
+      auto wmap = pointMapWeight(pmap);
+
+      auto list2 = pointMapToList(wmap);
+
+      savemap(params.outFile, list);
+
+      savemap("2"+params.outFile, list2);
 
 
-        //zInfo(QStringLiteral("%1 definitions replaced").arg(e));
-        savemap(params.outFile, list);
-
-        //return e;
 
     zInfo(QStringLiteral("Work1 done"));
     return 0;
+}
+
+QList<APoint> Work1::pointMapToList(const QMap<int, APoint> &map)
+{
+    QList<APoint> e;
+
+    zforeach(m, map){
+        auto p = *m;
+        p.id = m.key();
+        e.append(p);
+    }
+
+    return e;
+}
+
+// TODO radiuszt ki kell számolni
+QMap<int, APoint> Work1::pointMapWeight(const QMap<int, QList<APoint>> &map){
+    QMap<int, APoint> e;
+
+    zforeach(m, map)
+    {
+        double x=0,y=0,j=0;
+        auto v = m.value();
+        int ix = 1;
+        for(auto a = v.begin(); a != v.end()-ix; ++a){
+            j++;
+            x+=a->X;
+            y+=a->Y;
+        }
+        e.insert(m.key(), APoint(x/j, y/j, 0, 0));
+    }
+
+    return e;
+}
+
+// by id
+QMap<int, QList<APoint>> Work1::pointListToMap(const QList<APoint> &list){
+    QMap<int, QList<APoint>> e;
+
+    zforeach(p, list){
+        if(e.contains(p->id)){
+            e[p->id].append(*p);
+        }
+        else{
+            auto l = QList<APoint>();
+            l.append(*p);
+            e.insert(p->id, l);
+        }
+    }
+
+    return e;
 }
 
 int Work1::savemap(const QString& fn, const QList<APoint> &list){
@@ -76,7 +131,10 @@ int Work1::savemap(const QString& fn, const QList<APoint> &list){
 }
 
 QList<APoint> Work1::grbLoader(const QString& grbFileName){
-    auto grblines = com::helper::TextFileHelper::loadLines(grbFileName);
+    auto fi = QFileInfo(grbFileName);
+    auto ap_grbFileName = fi.absoluteFilePath();
+
+    auto grblines = com::helper::TextFileHelper::loadLines(ap_grbFileName);
 
        QList<APoint> list;
        QList<APoint> clist;
