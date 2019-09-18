@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         #appworker.cpp \
+        apoint.cpp \
         main.cpp \
         work1.cpp
 #\
@@ -34,6 +35,7 @@ LIBS += -L$$HOME/$$COMMON_LIBS/ -llogger
 LIBS += -L$$HOME/$$COMMON_LIBS/ -lsignalhelper
 LIBS += -L$$HOME/$$COMMON_LIBS/ -lCommandLineParserHelper
 LIBS += -L$$HOME/$$COMMON_LIBS/ -lcoreappworker
+LIBS += -L$$HOME/$$COMMON_LIBS/ -ltextfilehelper
 #LIBS += -L$$HOME/$$COMMON_LIBS/ -lstringhelper
 #LIBS += -L$$HOME/$$COMMON_LIBS/ -lfilehelper
 #LIBS += -L$$HOME/$$COMMON_LIBS/ -lmacrofactory
@@ -63,6 +65,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     #appworker.h \
+    apoint.h \
     work1.h
 
 #\
