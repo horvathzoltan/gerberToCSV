@@ -6,6 +6,9 @@
 #include "common/coreappworker/coreappworker.h"
 #include "work1.h"
 
+
+// gerberToCSV.exe -i Other.gbr -o insole_42.csv
+
 int main(int argc, char *argv[])
 {
     com::helper::SignalHelper::setShutDownSignal(com::helper::SignalHelper::SIGINT_); // shut down on ctrl-c

@@ -29,6 +29,8 @@ public:
     static double round(double val);
     static void pointMapRadius(const QMap<int, QList<APoint>> &map,QMap<int, APoint>* );
     static QMap<int, APoint> pointMapPercent(const QMap<int, APoint>& );
+    static QMap<int, APoint> pointMapPercent_mirrored(const QMap<int, APoint>& );
+
     static QMap<int, APoint> pointMapShift(const QMap<int, APoint>& , double x, double y);
     static QMap<int, APoint> pointMapMirror(const QMap<int, APoint> &map);
 private:

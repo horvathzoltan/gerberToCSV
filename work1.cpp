@@ -45,21 +45,24 @@ int Work1::doWork()
       pointMapRadius(pmap, &wmap);
       // százalékban megadni
       auto pwmap = pointMapPercent(wmap);
-      auto spwmap = pointMapShift(pwmap, -50, -50);
+      auto spwmapb = pointMapPercent_mirrored(wmap);
+      //auto spwmap = pointMapShift(pwmap, -50, -50);
+      //auto list2 = pointMapToList(spwmap);
 
+      auto list2 = pointMapToList(pwmap);
 
-      auto list2 = pointMapToList(spwmap);
-
-      savemap(params.outFile, list);
+      auto fn2 = params.outFile;
+      savemap(fn2.replace('.',"_poly."), list);
       savemap("3"+params.outFile, list2);
 
-      QString txt = drawPointList(list2, 100, 100, 50,50);
+      QString txt = drawPointList(list2, 100, 100, 0,0);
 
-      auto spwmapb = pointMapMirror(spwmap);
+      //auto spwmapb = pointMapMirror(spwmap);
+      //auto spwmapb = pointMapMirror(pwmap);
       auto list2b = pointMapToList(spwmapb);
       savemap("3b"+params.outFile, list2b);
       savemapjb("3jb"+params.outFile, list2, list2b);
-      QString txtb = drawPointList(list2b, 100, 100, 50,50);
+      QString txtb = drawPointList(list2b, 100, 100, 0,0);
 
       if(!txt.isEmpty()){
           auto isok = com::helper::TextFileHelper::save(txt, "4"+params.outFile);
@@ -107,19 +110,59 @@ QMap<int, APoint> Work1::pointMapPercent(const QMap<int, APoint>& map){
         if(p->Y<miny) miny=p->Y;
     }
 
-    double dx=maxx-minx;
-    double dy=maxy-miny;
+//    double dx=maxx-minx;
+//    double dy=maxy-miny;
 
-    double mx=10, my=10;
-    double px=(dx+2*mx)/100; //0-99 a tartományunk, 100 szám
-    double py=(dy+2*my)/100; //0-99 a tartomány, ez 100 szám
+    //double mx=10, my=10;
+//    double px=(dx+2*mx)/100; //0-99 a tartományunk, 100 szám
+//    double py=(dy+2*my)/100; //0-99 a tartomány, ez 100 szám
+
+//    double pp;
+//    if(px>py) pp = px; else pp = py;
 
     QMap<int, APoint> e;
     zforeach(p, map){
-        double x= px?((p->X-minx)+mx)/px:0;
-        double y= py?((p->Y-miny)+my)/py:0;
-        double r = (px!=-py)?(2*(p->R))/(px+py):0;
+//        double x= pp?((p->X-minx)+mx)/pp:0;
+//        double y= pp?((p->Y-miny)+my)/pp:0;
+//        double r = (pp)?(p->R)/pp:0;
+        double x= p->X-minx;
+        double y= p->Y-miny;
+        double r = p->R;
 
+        e.insert(p->id, APoint{x, y, p->id, p->grbl, r});
+    }
+    return e;
+}
+
+
+QMap<int, APoint> Work1::pointMapPercent_mirrored(const QMap<int, APoint>& map){
+    double maxx=std::numeric_limits<double>::min(),maxy=maxx,minx=std::numeric_limits<double>::max(),miny=minx;
+    zforeach(p, map){
+        if(p->X>maxx) maxx=p->X;
+        if(p->Y>maxy) maxy=p->Y;
+        if(p->X<minx) minx=p->X;
+        if(p->Y<miny) miny=p->Y;
+    }
+
+//    double dx=maxx-minx;
+//    double dy=maxy-miny;
+
+//    double mx=10, my=10;
+//    double px=(dx+2*mx)/100; //0-99 a tartományunk, 100 szám
+//    double py=(dy+2*my)/100; //0-99 a tartomány, ez 100 szám
+
+//    double pp;
+//    if(px>py) pp = px; else pp = py;
+
+    QMap<int, APoint> e;
+    zforeach(p, map){
+//        double x= pp?((maxx-p->X)+mx)/pp:0;
+//        double y= pp?((p->Y-miny)+my)/pp:0;
+//        double r = (pp)?(p->R)/pp:0;
+
+        double x= maxx-p->X;
+        double y= p->Y-miny;
+        double r = p->R;
         e.insert(p->id, APoint{x, y, p->id, p->grbl, r});
     }
     return e;
@@ -185,13 +228,31 @@ QString Work1::drawPointList(const QList<APoint>& list, double VX, double VY, do
     m[MAX_X-1][0] = 'x';
     m[0][MAX_Y-1] = 'y';
 
+    double maxx=std::numeric_limits<double>::min(),maxy=maxx,minx=std::numeric_limits<double>::max(),miny=minx;
+    zforeach(p, list){
+        if(p->X>maxx) maxx=p->X;
+        if(p->Y>maxy) maxy=p->Y;
+        if(p->X<minx) minx=p->X;
+        if(p->Y<miny) miny=p->Y;
+    }
+
+    double ddx=maxx-minx;
+    double ddy=maxy-miny;
+
+    double mx=10, my=10;
+    double px=(ddx+2*mx)/100; //0-99 a tartományunk, 100 szám
+    double py=(ddy+2*my)/100; //0-99 a tartomány, ez 100 szám
+
+    double pp;
+    if(px>py) pp = px; else pp = py;
+
     double rx =VX/(MAX_X-1);//0-19
     double ry =VY/(MAX_Y-1);//0-19
 
     zInfo(QStringLiteral("map draw"));
     zforeach(p, list){
-        int x = (int)round((p->X+dx)/rx);
-        int y = (int)round((p->Y+dy)/ry);
+        int x = (int)round((p->X/pp+dx)/rx);
+        int y = (int)round((p->Y/pp+dy)/ry);
         if(x>=MAX_X || y>=MAX_Y){
             zInfo(QStringLiteral("out of range: %1,%2").arg(x).arg(y));
             continue;
